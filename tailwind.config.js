@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
@@ -8,10 +9,10 @@ export default {
     extend: {
       colors: {
         primary: '#1DB954',
-        dark: '#121212',
-        darker: '#0a0a0a',
-        light: '#f3f4f6',
-        gray: '#b3b3b3'
+        backgroundLight: '#f3f4f6', 
+        backgroundDark: '#121212',
+        surfaceLight: '#ffffff',
+        surfaceDark: '#1e1e1e',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
