@@ -5,12 +5,15 @@ import { useSpotifyStore } from '@/stores/spotify_store'
 import SpotifyService from '@/services/spotify_service'
 import AlbumCard from '@/components/media/AlbumCard.vue'
 import NowPlayingCard from '@/components/media/NowPlayingCard.vue'
+import CreateReviewModal from '@/components/reviews/CreateReviewModal.vue' // <--- 1. Importar Modal
 
 const authStore = useAuthStore()
 const spotifyStore = useSpotifyStore()
 
 const nowPlaying = ref(null)
 const isPageLoading = ref(true)
+const isModalOpen = ref(false)
+const selectedAlbum = ref(null)
 
 onMounted(async () => {
   try {
@@ -31,11 +34,18 @@ onMounted(async () => {
 })
 
 const handleAlbumClick = (album) => {
-  console.log('Navegar para review de álbum:', album.name)
+  selectedAlbum.value = album
+  isModalOpen.value = true
 }
 
-const handleRateTrack = () => {
-  console.log('Abrir modal para avaliar:', nowPlaying.value.track_name)
+const handleRateNowPlaying = () => {
+  if (!nowPlaying.value || !nowPlaying.value.album) return
+  selectedAlbum.value = nowPlaying.value.album
+  isModalOpen.value = true
+}
+
+const onReviewSuccess = () => {
+
 }
 </script>
 
@@ -51,7 +61,7 @@ const handleRateTrack = () => {
       </p>
     </header>
 
-    <NowPlayingCard v-if="nowPlaying" :track="nowPlaying" @rate="handleRateTrack" />
+    <NowPlayingCard v-if="nowPlaying" :track="nowPlaying" @rate="handleRateNowPlaying" />
 
     <section>
       <div class="flex items-center justify-between mb-6">
@@ -63,8 +73,8 @@ const handleRateTrack = () => {
       <div v-if="isPageLoading && spotifyStore.suggestions.length === 0"
         class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         <div v-for="i in 5" :key="i" class="space-y-3">
-          <div class="aspect-square bg-gray-200 dark:bg-surfaceDark rounded-2xl animate-pulse"></div>
-          <div class="h-4 w-3/4 bg-gray-200 dark:bg-surfaceDark rounded animate-pulse"></div>
+          <div class="aspect-square bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse"></div>
+          <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
         </div>
       </div>
 
@@ -77,6 +87,9 @@ const handleRateTrack = () => {
         Nenhuma sugestão encontrada.
       </div>
     </section>
+
+    <CreateReviewModal :is-open="isModalOpen" :album="selectedAlbum" @close="isModalOpen = false"
+      @success="onReviewSuccess" />
 
   </div>
 </template>

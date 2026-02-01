@@ -36,7 +36,7 @@ defineEmits(['rate'])
             <button @click="$emit('rate')"
                 class="bg-primary text-white px-5 py-2.5 rounded-full font-bold text-sm hover:scale-105 transition-transform flex items-center gap-2 shadow-sm shadow-primary/20">
                 <PenTool :size="16" />
-                Avaliar Faixa
+                Avaliar Álbum
             </button>
         </div>
 
