@@ -1,31 +1,32 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth_store'
+import { useSpotifyStore } from '@/stores/spotify_store'
 import SpotifyService from '@/services/spotify_service'
 import AlbumCard from '@/components/media/AlbumCard.vue'
 import NowPlayingCard from '@/components/media/NowPlayingCard.vue'
 
 const authStore = useAuthStore()
-const suggestions = ref([])
+const spotifyStore = useSpotifyStore()
+
 const nowPlaying = ref(null)
-const isLoading = ref(true)
+const isPageLoading = ref(true)
 
 onMounted(async () => {
   try {
-    isLoading.value = true
+    isPageLoading.value = true
 
-    const [suggestionsData, nowPlayingData] = await Promise.all([
-      SpotifyService.getSuggestions(),
+    const [_, nowPlayingData] = await Promise.all([
+      spotifyStore.fetchSuggestions(),
       SpotifyService.getNowPlaying()
     ])
 
-    suggestions.value = suggestionsData
     nowPlaying.value = nowPlayingData
 
   } catch (error) {
     console.error('Erro ao carregar dashboard:', error)
   } finally {
-    isLoading.value = false
+    isPageLoading.value = false
   }
 })
 
@@ -59,7 +60,8 @@ const handleRateTrack = () => {
         </h2>
       </div>
 
-      <div v-if="isLoading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div v-if="isPageLoading && spotifyStore.suggestions.length === 0"
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         <div v-for="i in 5" :key="i" class="space-y-3">
           <div class="aspect-square bg-gray-200 dark:bg-surfaceDark rounded-2xl animate-pulse"></div>
           <div class="h-4 w-3/4 bg-gray-200 dark:bg-surfaceDark rounded animate-pulse"></div>
@@ -67,10 +69,11 @@ const handleRateTrack = () => {
       </div>
 
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <AlbumCard v-for="album in suggestions" :key="album.id" :album="album" @click="handleAlbumClick(album)" />
+        <AlbumCard v-for="album in spotifyStore.suggestions" :key="album.id" :album="album"
+          @click="handleAlbumClick(album)" />
       </div>
 
-      <div v-if="!isLoading && suggestions.length === 0" class="text-center py-12 text-gray-500">
+      <div v-if="!isPageLoading && spotifyStore.suggestions.length === 0" class="text-center py-12 text-gray-500">
         Nenhuma sugestão encontrada.
       </div>
     </section>
