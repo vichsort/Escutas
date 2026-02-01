@@ -1,6 +1,10 @@
 <script setup>
 import { RouterLink } from 'vue-router'
 import { Home, BookOpen, PlusCircle, Search } from 'lucide-vue-next'
+import { useAuthStore } from '@/stores/auth_store'
+import BaseButton from '@/components/ui/BaseButton.vue'
+
+const authStore = useAuthStore()
 </script>
 
 <template>
@@ -60,7 +64,22 @@ import { Home, BookOpen, PlusCircle, Search } from 'lucide-vue-next'
         </div>
 
         <div class="p-4 border-t border-gray-200 dark:border-gray-800">
-            <div class="h-10 w-full rounded-full bg-gray-200 dark:bg-white/10 animate-pulse"></div>
+
+            <div v-if="authStore.user" class="flex items-center gap-3">
+                <img :src="authStore.user.avatar_url || 'https://via.placeholder.com/40'"
+                    class="w-10 h-10 rounded-full border-2 border-primary" alt="Avatar" />
+                <div class="overflow-hidden">
+                    <p class="text-sm font-bold truncate">{{ authStore.user.display_name }}</p>
+                    <button @click="authStore.logout" class="text-xs text-red-500 hover:underline">Sair</button>
+                </div>
+            </div>
+
+            <div v-else>
+                <BaseButton block @click="authStore.loginWithSpotify">
+                    Entrar com Spotify
+                </BaseButton>
+            </div>
+
         </div>
 
     </aside>
