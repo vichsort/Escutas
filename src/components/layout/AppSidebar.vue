@@ -66,7 +66,7 @@ const authStore = useAuthStore()
         <div class="p-4 border-t border-gray-200 dark:border-gray-800">
 
             <div v-if="authStore.user" class="flex items-center gap-3">
-                <img :src="authStore.user.avatar_url || 'https://via.placeholder.com/40'"
+                <img :src="authStore.user.avatar_url || `https://ui-avatars.com/api/?name=${authStore.user.display_name}&background=1DB954&color=fff`"
                     class="w-10 h-10 rounded-full border-2 border-primary" alt="Avatar" />
                 <div class="overflow-hidden">
                     <p class="text-sm font-bold truncate">{{ authStore.user.display_name }}</p>
