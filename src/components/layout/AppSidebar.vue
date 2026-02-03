@@ -103,7 +103,7 @@ const handleLogoutConfirm = () => {
                         <RouterLink v-for="review in reviewStore.recentReviews" :key="review.id"
                             :to="`/reviews/${review.id}`"
                             class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer transition-colors group">
-                            <img :src="review.cover_url"
+                            <img :src="review.cover"
                                 class="w-8 h-8 rounded bg-gray-800 object-cover opacity-80 group-hover:opacity-100 transition-opacity shadow-sm"
                                 alt="Capa" />
                             <div class="overflow-hidden min-w-0">
