@@ -4,6 +4,7 @@ const HomeView = () => import('@/views/HomeView.vue')
 const ReviewsList = () => import('@/views/reviews/ReviewsList.vue')
 const BlogList = () => import('@/views/blog/BlogList.vue')
 const Callback = () => import('@/views/auth/Callback.vue')
+const LibraryView = () => import('@/views/LibraryView.vue')
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,12 @@ const router = createRouter({
             path: '/auth/callback',
             name: 'auth-callback',
             component: Callback
+        },
+        {
+            path: '/library',
+            name: 'library',
+            component: LibraryView,
+            meta: { requiresAuth: true } // Importante proteger essa rota!
         }
     ]
 })
