@@ -1,30 +1,29 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth_store'
-import { useSpotifyStore } from '@/stores/spotify_store'
-import SpotifyService from '@/services/spotify_service'
+import { useMeStore } from '@/stores/me_store' 
 import AlbumCard from '@/components/media/AlbumCard.vue'
 import NowPlayingCard from '@/components/media/NowPlayingCard.vue'
-import CreateReviewModal from '@/components/reviews/CreateReviewModal.vue' // <--- 1. Importar Modal
+import CreateReviewModal from '@/components/reviews/CreateReviewModal.vue'
 
 const authStore = useAuthStore()
-const spotifyStore = useSpotifyStore()
+const meStore = useMeStore()
 
-const nowPlaying = ref(null)
 const isPageLoading = ref(true)
 const isModalOpen = ref(false)
 const selectedAlbum = ref(null)
+
+const nowPlaying = computed(() => meStore.nowPlaying)
+const suggestions = computed(() => meStore.suggestions)
 
 onMounted(async () => {
   try {
     isPageLoading.value = true
 
-    const [_, nowPlayingData] = await Promise.all([
-      spotifyStore.fetchSuggestions(),
-      SpotifyService.getNowPlaying()
+    await Promise.all([
+      meStore.fetchSuggestions(),
+      meStore.fetchNowPlaying()
     ])
-
-    nowPlaying.value = nowPlayingData
 
   } catch (error) {
     console.error('Erro ao carregar dashboard:', error)
@@ -45,7 +44,7 @@ const handleRateNowPlaying = () => {
 }
 
 const onReviewSuccess = () => {
-
+  // Lógica futura pós-review (ex: dar um toast ou recarregar as suggestions)
 }
 </script>
 

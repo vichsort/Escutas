@@ -1,16 +1,19 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { Search, Loader2, Library } from 'lucide-vue-next'
-import ReviewService from '@/services/review_service'
+import { useUserStore } from '@/stores/users_store'
 import ReviewCard from '@/components/media/ReviewCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+
+const userStore = useUserStore()
 
 const reviews = ref([])
 const isLoading = ref(true)
 const isLoadingMore = ref(false)
 const searchQuery = ref('')
 const selectedTier = ref(null)
+
 const pagination = ref({
     page: 1,
     per_page: 20,
@@ -20,6 +23,12 @@ const pagination = ref({
 
 let searchTimeout = null
 
+/**
+ * TODO (Futuro): Implementar sistema agnóstico de filtros.
+ * Atualmente os filtros estão hardcoded e dependem do parâmetro 'tier'.
+ * A ideia é que futuramente possamos ter filtros mais dinâmicos (por gênero, ano, nota numérica, etc)
+ * sem precisar mexer no layout principal da página.
+ */
 const filters = [
     { label: 'Todos', value: null },
     { label: '👑 Masterpiece', value: 'S' },
@@ -32,6 +41,7 @@ const fetchReviews = async (reset = false) => {
     if (reset) {
         pagination.value.page = 1
         isLoading.value = true
+        reviews.value = [] 
     } else {
         isLoadingMore.value = true
     }
@@ -43,15 +53,19 @@ const fetchReviews = async (reset = false) => {
             search: searchQuery.value,
             tier: selectedTier.value
         }
-        // OBS AQUI DEIXOU DE EXISTIR!!!! PRECISA REVER (ME?)
-        const responseData = await ReviewService.getHistory(params)
+        
+        await userStore.fetchUserReviews('me', params)
 
-        const items = responseData.items || responseData.data?.items || responseData.data || []
+        const responseData = userStore.currentReviews
+        
+        if (!responseData) return
 
-        const total = responseData.meta?.total_items !== undefined ? responseData.meta.total_items :
-            (responseData.total !== undefined ? responseData.total : items.length)
-
-        const pages = responseData.meta?.total_pages || responseData.pages || 1
+        const items = responseData.items || responseData.data || []
+        
+        const total = responseData.total_items !== undefined ? responseData.total_items : 
+                     (responseData.meta?.total_items || items.length)
+        
+        const pages = responseData.total_pages || responseData.meta?.total_pages || responseData.pages || 1
 
         if (reset) {
             reviews.value = items

@@ -1,34 +1,30 @@
 <script setup>
-import { ref, watch } from 'vue'
-import SpotifyService from '@/services/spotify_service'
+import { ref, watch, computed } from 'vue'
+import { useAlbumStore } from '@/stores/albums_store'
 import AlbumCard from '@/components/media/AlbumCard.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import CreateReviewModal from '@/components/reviews/CreateReviewModal.vue'
 import { Search, Disc } from 'lucide-vue-next'
 
+const albumStore = useAlbumStore()
+
 const query = ref('')
-const results = ref([])
-const isLoading = ref(false)
 const hasSearched = ref(false)
 const isModalOpen = ref(false)
 const selectedAlbum = ref(null)
 let debounceTimeout = null
 
+const results = computed(() => albumStore.searchResults)
+const isLoading = computed(() => albumStore.isLoading)
+
 const performSearch = async () => {
   if (!query.value || query.value.length < 2) {
-    results.value = []
+    albumStore.search('')
     return
   }
 
-  try {
-    isLoading.value = true
-    hasSearched.value = true
-    results.value = await SpotifyService.searchAlbums(query.value)
-  } catch (error) {
-    console.error('Erro na busca:', error)
-  } finally {
-    isLoading.value = false
-  }
+  hasSearched.value = true
+  await albumStore.search(query.value)
 }
 
 watch(query, () => {

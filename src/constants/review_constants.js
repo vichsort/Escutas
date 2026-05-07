@@ -1,0 +1,13 @@
+export const LEGACY_OPTIONS = [
+    { label: '👑👑👑', value: 10.0, risk: false },
+    { label: '👑👑', value: 9.9, risk: false },
+    { label: '👑', value: 9.5, risk: false },
+    { label: '#', value: 9.0, risk: false },
+    { label: '##', value: 8.5, risk: false },
+    { label: '###', value: 7.5, risk: false },
+    { label: 'good', value: 6.5, risk: false },
+    { label: 'mid', value: 6.0, risk: false },
+    { label: 'bad', value: 4.5, risk: false },
+    { label: '~~bad~~', value: 3.0, risk: true },
+    { label: '~~bad~~ 💀', value: 0.0, risk: true },
+];

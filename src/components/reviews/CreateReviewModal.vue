@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { X, Loader2 } from 'lucide-vue-next'
-import SpotifyService from '@/services/spotify_service'
-import ReviewService from '@/services/review_service'
+import { LEGACY_OPTIONS } from '@/constants/review_constants'
+import { useAlbumStore } from '@/stores/albums_store'
+import { useReviewStore } from '@/stores/reviews_store'
 
 const props = defineProps({
     isOpen: Boolean,
@@ -10,26 +11,15 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'success'])
+
+const albumStore = useAlbumStore()
+const reviewStore = useReviewStore()
 const tracks = ref([])
 const reviewText = ref('')
 const isLoadingTracks = ref(false)
 const isSubmitting = ref(false)
 const error = ref(null)
 const isLegacyMode = ref(false)
-
-const LEGACY_OPTIONS = [
-    { label: '👑👑👑', value: 10.0, risk: false },
-    { label: '👑👑', value: 9.9, risk: false },
-    { label: '👑', value: 9.5, risk: false },
-    { label: '#', value: 9.0, risk: false },
-    { label: '##', value: 8.5, risk: false },
-    { label: '###', value: 7.5, risk: false },
-    { label: 'good', value: 6.5, risk: false },
-    { label: 'mid', value: 6.0, risk: false },
-    { label: 'bad', value: 4.5, risk: false },
-    { label: '~~bad~~', value: 3.0, risk: true },
-    { label: '~~bad~~ 💀', value: 0.0, risk: true },
-];
 
 watch(() => props.isOpen, async (isOpen) => {
     if (isOpen && props.album?.id) {
@@ -45,7 +35,7 @@ watch(() => props.isOpen, async (isOpen) => {
 const fetchTracks = async () => {
     try {
         isLoadingTracks.value = true
-        const data = await SpotifyService.getAlbumDetails(props.album.id)
+        const data = await albumStore.fetchAlbumDetails(props.album.id)
         const trackList = data.tracks?.items || data.tracks || []
 
         tracks.value = trackList.map(t => ({
@@ -94,8 +84,8 @@ const handleSubmit = async () => {
             })),
             review_text: reviewText.value
         }
+        await reviewStore.createReview(payload)
 
-        await ReviewService.createReview(payload)
         emit('success')
         closeModal()
     } catch (e) {
@@ -171,7 +161,7 @@ const closeModal = () => emit('close')
                         hover:bg-gray-50 dark:hover:bg-white/5">
 
                             <span class="w-6 text-sm text-center font-mono text-gray-400">{{ track.track_number
-                            }}</span>
+                                }}</span>
 
                             <div class="flex-1 min-w-0">
                                 <p class="text-base font-medium truncate transition-all" :class="[
