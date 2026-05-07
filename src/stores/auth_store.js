@@ -23,22 +23,24 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function handleCallback(code) {
         try {
-            const response = await api.get(`/auth/callback?code=${code}`)
+            // CORREÇÃO: Adicionando a redirect_uri na chamada do callback
+            const redirectUri = REDIRECT_URL;
+            const response = await api.get(`/auth/callback?code=${code}&redirect_uri=${redirectUri}`);
 
-            const { access_token, user: userData } = response.data.data
+            const { access_token, user: userData } = response.data.data;
 
-            token.value = access_token
-            user.value = userData
-            
-            localStorage.setItem('escutas_token', access_token)
-            localStorage.setItem('escutas_user', JSON.stringify(userData))
-            api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
-            
-            return true
+            token.value = access_token;
+            user.value = userData;
+
+            localStorage.setItem('escutas_token', access_token);
+            localStorage.setItem('escutas_user', JSON.stringify(userData));
+            api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+
+            return true;
         } catch (error) {
-            console.error('Erro no callback de login:', error)
-            logout()
-            return false
+            console.error('Erro no callback de login:', error);
+            logout();
+            return false;
         }
     }
 
@@ -51,12 +53,12 @@ export const useAuthStore = defineStore('auth', () => {
         window.location.href = '/'
     }
 
-    return { 
-        user, 
-        token, 
-        isAuthenticated, 
-        loginWithSpotify, 
-        handleCallback, 
-        logout 
+    return {
+        user,
+        token,
+        isAuthenticated,
+        loginWithSpotify,
+        handleCallback,
+        logout
     }
 })
