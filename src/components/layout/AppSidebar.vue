@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { Home, BookOpen, Search, Library, Music2, Headphones } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth_store'
 import { useReviewStore } from '@/stores/reviews_store'
@@ -12,6 +12,7 @@ const authStore = useAuthStore()
 const reviewStore = useReviewStore()
 const isLoginModalOpen = ref(false)
 const isLogoutModalOpen = ref(false)
+const route = useRoute()
 
 onMounted(() => {
     if (authStore.user) {
@@ -102,13 +103,19 @@ const handleLogoutConfirm = () => {
                     <div v-else-if="reviewStore.recentReviews.length > 0">
                         <RouterLink v-for="review in reviewStore.recentReviews" :key="review.id"
                             :to="`/reviews/${review.id}`"
-                            class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-white/10 cursor-pointer transition-colors group">
-                            <img :src="review.cover"
-                                class="w-8 h-8 rounded bg-gray-800 object-cover opacity-80 group-hover:opacity-100 transition-opacity shadow-sm"
+                            class="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors group border border-transparent"
+                            :class="route.params.id === review.id
+                                ? 'bg-primary/10 border-primary/20'
+                                : 'hover:bg-gray-200 dark:hover:bg-white/10'">
+                            <img :src="review.cover_url || 'https://placehold.co/100?text=CD'"
+                                class="w-8 h-8 rounded bg-gray-800 object-cover transition-opacity shadow-sm"
+                                :class="route.params.id === review.id ? 'opacity-100 ring-2 ring-primary' : 'opacity-80 group-hover:opacity-100'"
                                 alt="Capa" />
+
                             <div class="overflow-hidden min-w-0">
-                                <p
-                                    class="text-sm font-medium truncate text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
+                                <p class="text-sm font-medium truncate transition-colors" :class="route.params.id === review.id
+                                    ? 'text-primary font-bold'
+                                    : 'text-gray-700 dark:text-gray-300 group-hover:text-primary'">
                                     {{ review.album_name }}
                                 </p>
                                 <p class="text-xs text-gray-500 truncate">{{ review.artist_name }}</p>

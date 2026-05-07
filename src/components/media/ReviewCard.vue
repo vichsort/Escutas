@@ -31,9 +31,9 @@ const badgeConfig = computed(() => {
 
         <div
             class="relative aspect-square overflow-hidden rounded-xl shadow-sm group-hover:shadow-xl transition-all duration-300">
-            <img :src="review.cover || 'https://placehold.co/400x400?text=Sem+Capa'" :alt="review.album_name"
+            <img :src="review.cover_url || 'https://placehold.co/400x400?text=Sem+Capa'" :alt="review.album_name"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy" @error="$event.target.src = 'https://placehold.co/400x400?text=Erro'" />
+                loading="lazy" />
 
             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
 

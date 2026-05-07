@@ -43,7 +43,7 @@ const fetchReviews = async (reset = false) => {
             search: searchQuery.value,
             tier: selectedTier.value
         }
-
+        // OBS AQUI DEIXOU DE EXISTIR!!!! PRECISA REVER (ME?)
         const responseData = await ReviewService.getHistory(params)
 
         const items = responseData.items || responseData.data?.items || responseData.data || []
