@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth_store'
-import { useMeStore } from '@/stores/me_store' 
+import { useMeStore } from '@/stores/me_store'
 import AlbumCard from '@/components/media/AlbumCard.vue'
 import NowPlayingCard from '@/components/media/NowPlayingCard.vue'
 import CreateReviewModal from '@/components/reviews/CreateReviewModal.vue'
@@ -69,7 +69,7 @@ const onReviewSuccess = () => {
         </h2>
       </div>
 
-      <div v-if="isPageLoading && spotifyStore.suggestions.length === 0"
+      <div v-if="isPageLoading && (!meStore.suggestions || meStore.suggestions.length === 0)"
         class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         <div v-for="i in 5" :key="i" class="space-y-3">
           <div class="aspect-square bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse"></div>
@@ -78,11 +78,12 @@ const onReviewSuccess = () => {
       </div>
 
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <AlbumCard v-for="album in spotifyStore.suggestions" :key="album.id" :album="album"
+        <AlbumCard v-for="album in meStore.suggestions" :key="album.id" :album="album"
           @click="handleAlbumClick(album)" />
       </div>
 
-      <div v-if="!isPageLoading && spotifyStore.suggestions.length === 0" class="text-center py-12 text-gray-500">
+      <div v-if="!isPageLoading && (!meStore.suggestions || meStore.suggestions.length === 0)"
+        class="text-center py-12 text-gray-500">
         Nenhuma sugestão encontrada.
       </div>
     </section>

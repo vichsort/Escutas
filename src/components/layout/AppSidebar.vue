@@ -1,30 +1,39 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { Home, BookOpen, Search, Library, Music2, Headphones } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth_store'
-import { useReviewStore } from '@/stores/reviews_store'
+import { useUserStore } from '@/stores/users_store'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import LoginModal from '@/components/auth/LoginModal.vue'
 import LogoutModal from '@/components/auth/LogoutModal.vue'
 
 const authStore = useAuthStore()
-const reviewStore = useReviewStore()
+const userStore = useUserStore()
 const isLoginModalOpen = ref(false)
 const isLogoutModalOpen = ref(false)
 const route = useRoute()
 
+const recentReviews = computed(() => {
+    return userStore.currentReviews?.items || userStore.currentReviews?.data || []
+})
+const isLoading = computed(() => userStore.isLoading.reviews)
+
+const fetchSidebarReviews = () => {
+    userStore.fetchUserReviews('me', { page: 1, per_page: 5 })
+}
+
 onMounted(() => {
     if (authStore.user) {
-        reviewStore.fetchRecentReviews()
+        fetchSidebarReviews()
     }
 })
 
 watch(() => authStore.user, (newUser) => {
     if (newUser) {
-        reviewStore.fetchRecentReviews()
+        fetchSidebarReviews()
     } else {
-        reviewStore.recentReviews = []
+        userStore.currentReviews = null
     }
 })
 
@@ -90,7 +99,7 @@ const handleLogoutConfirm = () => {
 
                 <template v-if="authStore.user">
 
-                    <div v-if="reviewStore.isLoading" class="space-y-2">
+                    <div v-if="isLoading" class="space-y-2">
                         <div v-for="i in 3" :key="i" class="flex items-center gap-3 p-2 rounded-lg">
                             <div class="w-8 h-8 rounded bg-gray-200 dark:bg-gray-800 animate-pulse flex-shrink-0"></div>
                             <div class="flex-1 space-y-1.5 min-w-0">
@@ -100,9 +109,8 @@ const handleLogoutConfirm = () => {
                         </div>
                     </div>
 
-                    <div v-else-if="reviewStore.recentReviews.length > 0">
-                        <RouterLink v-for="review in reviewStore.recentReviews" :key="review.id"
-                            :to="`/reviews/${review.id}`"
+                    <div v-else-if="recentReviews.length > 0">
+                        <RouterLink v-for="review in recentReviews" :key="review.id" :to="`/reviews/${review.id}`"
                             class="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors group border border-transparent"
                             :class="route.params.id === review.id
                                 ? 'bg-primary/10 border-primary/20'
@@ -145,7 +153,7 @@ const handleLogoutConfirm = () => {
                     alt="Avatar" />
                 <div class="overflow-hidden flex-1">
                     <p class="text-xs font-bold truncate text-gray-900 dark:text-white">{{ authStore.user.display_name
-                        }}</p>
+                    }}</p>
                     <button @click.stop="isLogoutModalOpen = true"
                         class="text-[10px] text-red-500 hover:text-red-400 font-medium uppercase tracking-wide hover:underline">
                         Sair
@@ -160,9 +168,7 @@ const handleLogoutConfirm = () => {
             </div>
         </div>
 
-
         <LoginModal :is-open="isLoginModalOpen" @close="isLoginModalOpen = false" @confirm="handleLoginConfirm" />
-
         <LogoutModal :is-open="isLogoutModalOpen" @close="isLogoutModalOpen = false" @confirm="handleLogoutConfirm" />
     </aside>
 </template>
