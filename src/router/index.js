@@ -3,7 +3,6 @@ import { useAuthStore } from '@/stores/auth_store'
 
 const HomeView = () => import('@/views/HomeView.vue')
 const SearchView = () => import('@/views/SearchView.vue')
-const ReviewsList = () => import('@/views/reviews/ReviewsList.vue')
 const BlogList = () => import('@/views/blog/BlogList.vue')
 const Callback = () => import('@/views/auth/Callback.vue')
 const LibraryView = () => import('@/views/LibraryView.vue')
@@ -14,22 +13,17 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            name: 'Home',
+            name: 'home',
             component: HomeView
         },
         {
             path: '/search',
-            name: 'Search',
+            name: 'search',
             component: SearchView
         },
         {
-            path: '/reviews',
-            name: 'Reviews',
-            component: ReviewsList
-        },
-        {
             path: '/blog',
-            name: 'Blog',
+            name: 'blog',
             component: BlogList
         },
         {
@@ -39,7 +33,7 @@ const router = createRouter({
         },
         {
             path: '/library',
-            name: 'Library',
+            name: 'library',
             component: LibraryView,
             meta: { requiresAuth: true }
         },
@@ -58,7 +52,7 @@ router.beforeEach((to, from, next) => {
     // Se a rota exige autenticação e o usuário NÃO está logado...
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
         // ...redireciona para a home
-        next({ name: 'Home' })
+        next({ name: 'home' })
     } else {
         // ...caso contrário, segue o fluxo normal
         next()
