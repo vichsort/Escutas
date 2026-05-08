@@ -1,107 +1,23 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { Search, Loader2, Library } from 'lucide-vue-next'
-import { useUserStore } from '@/stores/users_store'
+import { onMounted } from 'vue'
+import { Library, Loader2 } from 'lucide-vue-next'
+import { useLibrary } from '@/composables/useLibrary'
+import LibraryFilters from '@/components/library/LibraryFilters.vue'
 import ReviewCard from '@/components/media/ReviewCard.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import SkeletonGrid from '@/components/ui/SkeletonGrid.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 
-const userStore = useUserStore()
-
-const reviews = ref([])
-const isLoading = ref(true)
-const isLoadingMore = ref(false)
-const searchQuery = ref('')
-const selectedTier = ref(null)
-
-const pagination = ref({
-    page: 1,
-    per_page: 20,
-    total: 0,
-    has_next: false
-})
-
-let searchTimeout = null
-
-/**
- * TODO (Futuro): Implementar sistema agnóstico de filtros.
- * Atualmente os filtros estão hardcoded e dependem do parâmetro 'tier'.
- * A ideia é que futuramente possamos ter filtros mais dinâmicos (por gênero, ano, nota numérica, etc)
- * sem precisar mexer no layout principal da página.
- */
-const filters = [
-    { label: 'Todos', value: null },
-    { label: '👑 Masterpiece', value: 'S' },
-    { label: '🔥 Ótimos', value: 'A' },
-    { label: '😐 Médios', value: 'B' },
-    { label: '💀 Ruins', value: 'C' },
-]
-
-const fetchReviews = async (reset = false) => {
-    if (reset) {
-        pagination.value.page = 1
-        isLoading.value = true
-        reviews.value = [] 
-    } else {
-        isLoadingMore.value = true
-    }
-
-    try {
-        const params = {
-            page: pagination.value.page,
-            per_page: pagination.value.per_page,
-            search: searchQuery.value,
-            tier: selectedTier.value
-        }
-        
-        await userStore.fetchUserReviews('me', params)
-
-        const responseData = userStore.currentReviews
-        
-        if (!responseData) return
-
-        const items = responseData.items || responseData.data || []
-        
-        const total = responseData.total_items !== undefined ? responseData.total_items : 
-                     (responseData.meta?.total_items || items.length)
-        
-        const pages = responseData.total_pages || responseData.meta?.total_pages || responseData.pages || 1
-
-        if (reset) {
-            reviews.value = items
-        } else {
-            reviews.value = [...reviews.value, ...items]
-        }
-
-        pagination.value.total = total
-        pagination.value.has_next = pagination.value.page < pages
-
-    } catch (error) {
-        console.error('Erro ao buscar biblioteca:', error)
-    } finally {
-        isLoading.value = false
-        isLoadingMore.value = false
-    }
-}
-
-const loadMore = () => {
-    if (pagination.value.has_next) {
-        pagination.value.page++
-        fetchReviews(false)
-    }
-}
-
-watch(searchQuery, () => {
-    clearTimeout(searchTimeout)
-    searchTimeout = setTimeout(() => {
-        fetchReviews(true)
-    }, 250)
-})
-
-const selectFilter = (value) => {
-    selectedTier.value = value
-    fetchReviews(true)
-}
+const {
+    reviews,
+    isLoading,
+    isLoadingMore,
+    pagination,
+    filters,
+    fetchReviews,
+    loadMore,
+    updateFilters
+} = useLibrary()
 
 onMounted(() => {
     fetchReviews(true)
@@ -111,7 +27,7 @@ onMounted(() => {
 <template>
     <div class="p-8 pb-24 max-w-7xl mx-auto space-y-8">
 
-        <header class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                     <Library class="text-primary" />
@@ -123,40 +39,27 @@ onMounted(() => {
                 </p>
             </div>
 
-            <div class="w-full md:w-80">
-                <BaseInput v-model="searchQuery" placeholder="Buscar álbum ou artista...">
-                    <template #prefix>
-                        <Search :size="18" class="text-gray-400" />
-                    </template>
-                </BaseInput>
+            <div class="w-full lg:w-auto flex-1 max-w-2xl flex justify-end">
+                <LibraryFilters :filters="filters" @update="updateFilters" />
             </div>
         </header>
 
-        <div class="flex flex-wrap gap-2 pb-2">
-            <button v-for="filter in filters" :key="filter.label" @click="selectFilter(filter.value)"
-                class="px-4 py-1.5 rounded-full text-sm font-bold transition-all border"
-                :class="selectedTier === filter.value
-                    ? 'bg-primary border-primary text-white shadow-md shadow-primary/20'
-                    : 'bg-white dark:bg-white/5 border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-primary/50'">
-                {{ filter.label }}
-            </button>
-        </div>
-
         <section>
 
-            <div v-if="isLoading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                <div v-for="i in 10" :key="i" class="space-y-3">
-                    <div class="aspect-square bg-gray-200 dark:bg-gray-800 rounded-xl animate-pulse"></div>
-                    <div class="h-4 w-3/4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
-                </div>
-            </div>
+            <SkeletonGrid v-if="isLoading" :count="10" />
 
-            <div v-else-if="reviews.length === 0"
-                class="flex flex-col items-center justify-center py-20 text-gray-400 opacity-60">
-                <Library :size="64" class="mb-4 text-gray-300 dark:text-gray-700" />
-                <p v-if="searchQuery">Nenhum resultado para "{{ searchQuery }}"</p>
-                <p v-else>Sua biblioteca está vazia. Vá em "Explorar" para começar!</p>
-            </div>
+            <EmptyState v-else-if="reviews.length === 0">
+                <template #icon>
+                    <Library :size="64" class="text-gray-300 dark:text-gray-700" />
+                </template>
+
+                <span v-if="filters.search || filters.tier || filters.is_private">
+                    Nenhum resultado encontrado para os filtros atuais.
+                </span>
+                <span v-else>
+                    Sua biblioteca está vazia. Vá em "Explorar" para começar!
+                </span>
+            </EmptyState>
 
             <div v-else
                 class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 animate-in fade-in slide-in-from-bottom-4">
