@@ -1,78 +1,80 @@
 import { ref, computed } from 'vue'
 import { useReviewStore } from '@/stores/reviews_store'
+import { useDraftsStore } from '@/stores/drafts_store'
 
 export function useReviewDraft() {
     const reviewStore = useReviewStore()
-    const tracks = ref([])
-    const reviewText = ref('')
+    const draftsStore = useDraftsStore()
     const isSubmitting = ref(false)
     const error = ref(null)
 
-    // Inicializar o rascunho com os dados limpos do Álbum
-    const initializeDraft = (rawTracks) => {
-        if (!rawTracks) return
+    // O get/set permite que o v-model="reviewText" continue funcionando sem alterar a UI
+    const tracks = computed({
+        get: () => draftsStore.activeDraft?.tracks || [],
+        set: (val) => { if (draftsStore.activeDraft) draftsStore.activeDraft.tracks = val }
+    })
 
-        tracks.value = rawTracks.map(t => ({
-            id: t.id,
-            name: t.name,
-            track_number: t.track_number,
-            userScore: 7.0,
-            isIgnored: t.suggested_ignore || false
-        }))
-        
-        reviewText.value = ''
+    const reviewText = computed({
+        get: () => draftsStore.activeDraft?.reviewText || '',
+        set: (val) => { if (draftsStore.activeDraft) draftsStore.activeDraft.reviewText = val }
+    })
+
+    const isLegacyMode = computed({
+        get: () => draftsStore.activeDraft?.isLegacyMode || false,
+        set: (val) => { if (draftsStore.activeDraft) draftsStore.activeDraft.isLegacyMode = val }
+    })
+
+    // A média agora vem mastigada direto da store
+    const currentAverage = computed(() => draftsStore.draftAverage)
+
+    // Inicializar Rascunho
+    const initializeDraft = (albumData, rawTracks) => {
+        // Só sobrescreve se NÃO for o mesmo álbum que já está no rascunho
+        if (!draftsStore.activeDraft || draftsStore.activeDraft.album.id !== albumData.id) {
+            draftsStore.initDraft(albumData, rawTracks)
+        }
         error.value = null
     }
 
-    // Riscar ou "Desriscar" uma faixa ('X' no hover)
+    // Riscar/Desriscar Faixa
     const toggleIgnoreTrack = (trackId) => {
-        const track = tracks.value.find(t => t.id === trackId)
+        if (!draftsStore.activeDraft) return
+        const track = draftsStore.activeDraft.tracks.find(t => t.id === trackId)
         if (track) {
             track.isIgnored = !track.isIgnored
         }
     }
 
-    // Média em tempo real
-    const currentAverage = computed(() => {
-        // Filtra para calcular a média APENAS das faixas que não estão ignoradas
-        const validTracks = tracks.value.filter(t => !t.isIgnored)
-        
-        if (validTracks.length === 0) return "0.0"
-
-        const total = validTracks.reduce((acc, t) => acc + (Number(t.userScore) || 0), 0)
-        return (total / validTracks.length).toFixed(1)
-    })
-
     // Enviar a Review
-    const submitReview = async (albumData) => {
+    const submitReview = async () => {
+        if (!draftsStore.activeDraft) return false
+
         try {
             isSubmitting.value = true
             error.value = null
 
+            const draft = draftsStore.activeDraft
+
             const payload = {
-                album: {
-                    id: albumData.id,
-                    name: albumData.name,
-                    artist: albumData.artist,
-                    cover: albumData.cover_url
-                },
-                // Mapeia de volta para o formato que a API espera
-                tracks: tracks.value.map(t => ({
+                album: draft.album,
+                tracks: draft.tracks.map(t => ({
                     id: t.id,
                     name: t.name,
                     track_number: t.track_number,
                     userScore: Number(t.userScore),
                     is_ignored: t.isIgnored
                 })),
-                review_text: reviewText.value
+                review_text: draft.reviewText
             }
 
             await reviewStore.createReview(payload)
-            return true // Sinaliza sucesso para a View fechar o Modal
+            
+            draftsStore.clearDraft()
+            return true 
 
         } catch (e) {
             error.value = e.response?.data?.message || "Erro ao salvar review."
-            return false // Sinaliza falha
+            return false
         } finally {
             isSubmitting.value = false
         }
@@ -81,6 +83,7 @@ export function useReviewDraft() {
     return {
         tracks,
         reviewText,
+        isLegacyMode,
         isSubmitting,
         error,
         currentAverage,
