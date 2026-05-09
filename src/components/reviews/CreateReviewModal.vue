@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { X, Loader2 } from 'lucide-vue-next'
+import { X, Loader2, Maximize2 } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
 import { LEGACY_OPTIONS } from '@/constants/review_constants'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import ReviewModeToggle from '@/components/reviews/ReviewModeToggle.vue'
@@ -33,6 +34,15 @@ const {
     toggleIgnoreTrack,
     submitReview
 } = useReviewDraft()
+
+const router = useRouter()
+
+const handleExpand = () => {
+    handleClose() // Fecha o modal visualmente
+    if (props.album?.id) {
+        router.push(`/albums/${props.album.id}/review`) // Redireciona mantendo o rascunho seguro na Store!
+    }
+}
 
 const isLegacyMode = ref(false)
 const combinedError = computed(() => fetchError.value || submitError.value)
@@ -77,10 +87,17 @@ const handleSubmit = async () => {
                         </div>
                     </div>
 
-                    <button @click="handleClose"
-                        class="p-2 rounded-full transition-colors text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white">
-                        <X :size="24" />
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <button @click="handleExpand" title="Expandir para tela cheia" 
+                                class="p-2 rounded-full transition-colors text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white">
+                            <Maximize2 :size="20" />
+                        </button>
+                        
+                        <button @click="handleClose" title="Fechar" 
+                                class="p-2 rounded-full transition-colors text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white">
+                            <X :size="24" />
+                        </button>
+                    </div>
                 </div>
 
                 <ReviewModeToggle v-model="isLegacyMode" />

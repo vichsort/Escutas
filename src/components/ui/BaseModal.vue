@@ -1,5 +1,5 @@
 <script setup>
-import { X } from 'lucide-vue-next'
+import { X, Maximize2 } from 'lucide-vue-next'
 
 defineProps({
     isOpen: {
@@ -13,10 +13,14 @@ defineProps({
     showCloseButton: {
         type: Boolean,
         default: true
+    },
+    showExpandButton: {
+        type: Boolean,
+        default: false
     }
 })
 
-defineEmits(['close'])
+defineEmits(['close', 'expand'])
 </script>
 
 <template>
@@ -31,12 +35,21 @@ defineEmits(['close'])
                 <div
                     class="flex flex-col gap-4 p-6 border-b border-gray-100 dark:border-gray-800 bg-backgroundLight dark:bg-backgroundDark/50">
                     <slot name="header">
-                        <div class="flex items-center justify-between" v-if="title || showCloseButton">
+                        <div class="flex items-center justify-between"
+                            v-if="title || showCloseButton || showExpandButton">
                             <h2 class="text-xl font-bold">{{ title }}</h2>
-                            <button v-if="showCloseButton" @click="$emit('close')"
-                                class="p-2 rounded-full transition-colors text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white">
-                                <X :size="24" />
-                            </button>
+
+                            <div class="flex items-center gap-1">
+                                <button v-if="showExpandButton" @click="$emit('expand')" title="Expandir"
+                                    class="p-2 rounded-full transition-colors text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white">
+                                    <Maximize2 :size="20" />
+                                </button>
+
+                                <button v-if="showCloseButton" @click="$emit('close')" title="Fechar"
+                                    class="p-2 rounded-full transition-colors text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white">
+                                    <X :size="24" />
+                                </button>
+                            </div>
                         </div>
                     </slot>
                 </div>
