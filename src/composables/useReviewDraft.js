@@ -29,8 +29,12 @@ export function useReviewDraft() {
 
     // Inicializar Rascunho
     const initializeDraft = (albumData, rawTracks) => {
-        // Só sobrescreve se NÃO for o mesmo álbum que já está no rascunho
-        if (!draftsStore.activeDraft || draftsStore.activeDraft.album.id !== albumData.id) {
+        // Blindagem de segurança caso os dados não cheguem
+        if (!albumData || !rawTracks) return
+
+        const isDifferentAlbum = !draftsStore.activeDraft || draftsStore.activeDraft?.album?.id !== albumData.id
+
+        if (isDifferentAlbum) {
             draftsStore.initDraft(albumData, rawTracks)
         }
         error.value = null

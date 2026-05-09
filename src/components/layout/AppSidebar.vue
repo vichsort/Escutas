@@ -67,7 +67,7 @@ const handleLogoutConfirm = () => {
                 Início
             </RouterLink>
 
-            <RouterLink to="/reviews" active-class="bg-primary/10 text-primary font-bold dark:bg-primary/20" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 
+            <RouterLink to="/search" active-class="bg-primary/10 text-primary font-bold dark:bg-primary/20" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 
                        text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-white/10">
                 <Search :size="20" />
                 Explorar

@@ -54,11 +54,12 @@ const combinedError = computed(() => fetchError.value || submitError.value)
 watch(() => props.isOpen, async (isOpen) => {
     if (isOpen && props.album?.id) {
         await loadAlbum(props.album.id)
-
+        
         if (fullAlbum.value?.tracks) {
-            initializeDraft(fullAlbum.value.tracks)
+            initializeDraft(fullAlbum.value, fullAlbum.value.tracks)
         }
     } else {
+        // Limpa o estado visual quando fecha
         isLegacyMode.value = false
     }
 })
