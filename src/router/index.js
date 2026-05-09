@@ -7,6 +7,7 @@ const BlogList = () => import('@/views/blog/BlogList.vue')
 const Callback = () => import('@/views/auth/Callback.vue')
 const LibraryView = () => import('@/views/LibraryView.vue')
 const ReviewDetailsView = () => import('@/views/reviews/ReviewDetailsView.vue')
+const CreateReviewView = () => import('@/views/CreateReviewView.vue')
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,6 +42,12 @@ const router = createRouter({
             path: '/reviews/:id',
             name: 'review-details',
             component: ReviewDetailsView,
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/albums/:id/review',
+            name: 'create-review',
+            component: CreateReviewView,
             meta: { requiresAuth: true }
         },
     ]
