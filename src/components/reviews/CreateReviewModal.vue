@@ -38,9 +38,13 @@ const {
 const router = useRouter()
 
 const handleExpand = () => {
-    handleClose() // Fecha o modal visualmente
+    handleClose()
     if (props.album?.id) {
-        router.push(`/albums/${props.album.id}/review`) // Redireciona mantendo o rascunho seguro na Store!
+        // Formato Objeto (À prova de refatorações de URL futuras)
+        router.push({ 
+            name: 'create-review', 
+            params: { id: props.album.id } 
+        })
     }
 }
 
