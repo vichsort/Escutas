@@ -3,7 +3,6 @@ import { RouterView } from 'vue-router'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useThemeStore } from '@/stores/theme_store'
 import { Sun, Moon } from 'lucide-vue-next'
-import DraftConflictModal from '@/components/reviews/DraftConflictModal.vue'
 
 const themeStore = useThemeStore()
 </script>
@@ -19,7 +18,5 @@ const themeStore = useThemeStore()
     </template>
 
     <RouterView />
-
-    <DraftConflictModal />
   </AppLayout>
 </template>

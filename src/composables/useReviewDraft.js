@@ -1,63 +1,77 @@
-import { ref, computed } from 'vue'
+import { ref, computed, unref } from 'vue'
 import { useReviewStore } from '@/stores/reviews_store'
 import { useDraftsStore } from '@/stores/drafts_store'
 
-export function useReviewDraft() {
+export function useReviewDraft(albumIdParam) {
     const reviewStore = useReviewStore()
     const draftsStore = useDraftsStore()
+
+    // Garantimos que o ID seja reativo
+    const currentId = computed(() => unref(albumIdParam))
+
+    // Estado Efêmero
     const isSubmitting = ref(false)
     const error = ref(null)
 
-    // O get/set permite que o v-model="reviewText" continue funcionando sem alterar a UI
+    // Atalho para pegar a "gaveta" correta desta instância
+    const activeDraft = computed(() => draftsStore.drafts[currentId.value])
+
+    // Atalhos Reativos com Auto-Save Silencioso
     const tracks = computed({
-        get: () => draftsStore.activeDraft?.tracks || [],
-        set: (val) => { if (draftsStore.activeDraft) draftsStore.activeDraft.tracks = val }
+        get: () => activeDraft.value?.tracks || [],
+        set: (val) => { 
+            if (activeDraft.value) {
+                activeDraft.value.tracks = val
+                draftsStore.touchDraft(currentId.value) // Auto-save- Atualiza a data
+            }
+        }
     })
 
     const reviewText = computed({
-        get: () => draftsStore.activeDraft?.reviewText || '',
-        set: (val) => { if (draftsStore.activeDraft) draftsStore.activeDraft.reviewText = val }
+        get: () => activeDraft.value?.reviewText || '',
+        set: (val) => { 
+            if (activeDraft.value) {
+                activeDraft.value.reviewText = val
+                draftsStore.touchDraft(currentId.value) // Auto-save- Atualiza a data
+            }
+        }
     })
 
     const isLegacyMode = computed({
-        get: () => draftsStore.activeDraft?.isLegacyMode || false,
-        set: (val) => { if (draftsStore.activeDraft) draftsStore.activeDraft.isLegacyMode = val }
+        get: () => activeDraft.value?.isLegacyMode || false,
+        set: (val) => { 
+            if (activeDraft.value) {
+                activeDraft.value.isLegacyMode = val
+                draftsStore.touchDraft(currentId.value) // Auto-save
+            }
+        }
     })
 
-    // A média agora vem mastigada direto da store
-    const currentAverage = computed(() => draftsStore.draftAverage)
+    const currentAverage = computed(() => draftsStore.getDraftAverage(currentId.value))
 
-    // Inicializar Rascunho
     const initializeDraft = (albumData, rawTracks) => {
-        // Blindagem de segurança caso os dados não cheguem
         if (!albumData || !rawTracks) return
-
-        const isDifferentAlbum = !draftsStore.activeDraft || draftsStore.activeDraft?.album?.id !== albumData.id
-
-        if (isDifferentAlbum) {
-            draftsStore.initDraft(albumData, rawTracks)
-        }
+        draftsStore.initDraft(albumData, rawTracks)
         error.value = null
     }
 
-    // Riscar/Desriscar Faixa
     const toggleIgnoreTrack = (trackId) => {
-        if (!draftsStore.activeDraft) return
-        const track = draftsStore.activeDraft.tracks.find(t => t.id === trackId)
+        if (!activeDraft.value) return
+        const track = activeDraft.value.tracks.find(t => t.id === trackId)
         if (track) {
             track.isIgnored = !track.isIgnored
+            draftsStore.touchDraft(currentId.value) // Auto-save
         }
     }
 
-    // Enviar a Review
     const submitReview = async () => {
-        if (!draftsStore.activeDraft) return false
+        if (!activeDraft.value) return false
 
         try {
             isSubmitting.value = true
             error.value = null
 
-            const draft = draftsStore.activeDraft
+            const draft = activeDraft.value
 
             const payload = {
                 album: draft.album,
@@ -73,7 +87,8 @@ export function useReviewDraft() {
 
             await reviewStore.createReview(payload)
             
-            draftsStore.clearDraft()
+            // Sucesso Apagamos a gaveta deste álbum específico do disco
+            draftsStore.deleteDraft(currentId.value)
             return true 
 
         } catch (e) {

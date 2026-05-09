@@ -24,16 +24,10 @@ const {
     loadAlbum
 } = useAlbumDetails()
 
-const {
-    tracks,
-    reviewText,
-    isSubmitting,
-    error: submitError,
-    currentAverage,
-    initializeDraft,
-    toggleIgnoreTrack,
-    submitReview
-} = useReviewDraft()
+const { 
+    tracks, reviewText, isLegacyMode, isSubmitting, error: submitError, currentAverage, 
+    initializeDraft, toggleIgnoreTrack, submitReview 
+} = useReviewDraft(computed(() => props.album?.id))
 
 const router = useRouter()
 
@@ -48,7 +42,6 @@ const handleExpand = () => {
     }
 }
 
-const isLegacyMode = ref(false)
 const combinedError = computed(() => fetchError.value || submitError.value)
 
 watch(() => props.isOpen, async (isOpen) => {
