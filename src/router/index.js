@@ -6,6 +6,7 @@ const SearchView = () => import('@/views/SearchView.vue')
 const BlogList = () => import('@/views/blog/BlogList.vue')
 const Callback = () => import('@/views/auth/Callback.vue')
 const LibraryView = () => import('@/views/LibraryView.vue')
+const DraftsView = () => import('@/views/DraftsView.vue')
 const ReviewDetailsView = () => import('@/views/reviews/ReviewDetailsView.vue')
 const CreateReviewView = () => import('@/views/CreateReviewView.vue')
 
@@ -36,6 +37,12 @@ const router = createRouter({
             path: '/library',
             name: 'library',
             component: LibraryView,
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/library/drafts',
+            name: 'drafts',
+            component: DraftsView,
             meta: { requiresAuth: true }
         },
         {

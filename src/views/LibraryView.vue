@@ -3,6 +3,8 @@ import { onMounted } from 'vue'
 import { Library, Loader2 } from 'lucide-vue-next'
 import { useLibrary } from '@/composables/useLibrary'
 import LibraryFilters from '@/components/library/LibraryFilters.vue'
+import { useDraftsStore } from '@/stores/drafts_store'
+import DraftsGoToCard from '@/components/library/DraftsGoToCard.vue'
 import ReviewCard from '@/components/media/ReviewCard.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import SkeletonGrid from '@/components/ui/SkeletonGrid.vue'
@@ -63,6 +65,7 @@ onMounted(() => {
 
             <div v-else
                 class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 animate-in fade-in slide-in-from-bottom-4">
+                <DraftsGoToCard v-if="draftsStore.allDrafts.length > 0" :count="draftsStore.allDrafts.length" />
                 <ReviewCard v-for="review in reviews" :key="review.id" :review="review" />
             </div>
 
