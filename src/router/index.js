@@ -55,7 +55,7 @@ const router = createRouter({
             path: '/albums/:id/review',
             name: 'create-review',
             component: CreateReviewView,
-            meta: { requiresAuth: true }
+            meta: { requiresAuth: true, layout: 'review' }
         },
     ]
 })
@@ -63,12 +63,9 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore()
 
-    // Se a rota exige autenticação e o usuário NÃO está logado...
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-        // ...redireciona para a home
         next({ name: 'home' })
     } else {
-        // ...caso contrário, segue o fluxo normal
         next()
     }
 })
