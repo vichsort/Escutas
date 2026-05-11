@@ -2,10 +2,12 @@
 import { onMounted } from 'vue'
 import { Library, Loader2 } from 'lucide-vue-next'
 import { useLibrary } from '@/composables/useLibrary'
-import LibraryFilters from '@/components/library/LibraryFilters.vue'
+import { usePreferencesStore } from '@/stores/preferences_store'
 import { useDraftsStore } from '@/stores/drafts_store'
+import LibraryFilters from '@/components/library/LibraryFilters.vue'
+import ViewModeToggle from '@/components/ui/ViewModeToggle.vue'
 import DraftsGoToCard from '@/components/library/DraftsGoToCard.vue'
-import ReviewCard from '@/components/media/ReviewCard.vue'
+import ReviewListItem from '@/components/reviews/ReviewListItem.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import SkeletonGrid from '@/components/ui/SkeletonGrid.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -20,6 +22,9 @@ const {
     loadMore,
     updateFilters
 } = useLibrary()
+
+const preferences = usePreferencesStore()
+const draftsStore = useDraftsStore()
 
 onMounted(() => {
     fetchReviews(true)
@@ -36,25 +41,25 @@ onMounted(() => {
                     Sua Biblioteca
                 </h1>
                 <p class="text-gray-500 dark:text-gray-400 mt-2">
-                    Você já avaliou <span class="font-bold text-gray-900 dark:text-white">{{ pagination.total }}</span>
+                    Você já avaliou
+                    <span class="font-bold text-gray-900 dark:text-white">{{ pagination.total }}</span>
                     álbuns.
                 </p>
             </div>
 
-            <div class="w-full lg:w-auto flex-1 max-w-2xl flex justify-end">
+            <div class="w-full lg:w-auto flex-1 max-w-2xl flex items-center justify-end gap-3">
                 <LibraryFilters :filters="filters" @update="updateFilters" />
+                <ViewModeToggle v-model="preferences.viewMode" @update:modelValue="preferences.setViewMode" />
             </div>
         </header>
 
         <section>
-
             <SkeletonGrid v-if="isLoading" :count="10" />
 
             <EmptyState v-else-if="reviews.length === 0">
                 <template #icon>
                     <Library :size="64" class="text-gray-300 dark:text-gray-700" />
                 </template>
-
                 <span v-if="filters.search || filters.tier || filters.is_private">
                     Nenhum resultado encontrado para os filtros atuais.
                 </span>
@@ -63,11 +68,17 @@ onMounted(() => {
                 </span>
             </EmptyState>
 
-            <div v-else
-                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 animate-in fade-in slide-in-from-bottom-4">
-                <DraftsGoToCard v-if="draftsStore.allDrafts.length > 0" :count="draftsStore.allDrafts.length" />
-                <ReviewCard v-for="review in reviews" :key="review.id" :review="review" />
-            </div>
+            <template v-else>
+                <div :class="[
+                    preferences.viewMode === 'grid'
+                        ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6'
+                        : 'flex flex-col gap-2'
+                ]" class="animate-in fade-in slide-in-from-bottom-4">
+                    <DraftsGoToCard v-if="draftsStore.allDrafts.length > 0" :count="draftsStore.allDrafts.length" />
+                    <ReviewListItem v-for="review in reviews" :key="review.id" :review="review"
+                        :view-mode="preferences.viewMode" />
+                </div>
+            </template>
 
             <div v-if="pagination.has_next" class="flex justify-center mt-12">
                 <BaseButton variant="outline" @click="loadMore" :disabled="isLoadingMore" class="min-w-[200px]">
@@ -75,7 +86,6 @@ onMounted(() => {
                     {{ isLoadingMore ? 'Carregando...' : 'Carregar Mais' }}
                 </BaseButton>
             </div>
-
         </section>
 
     </div>
