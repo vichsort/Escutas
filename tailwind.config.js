@@ -16,6 +16,16 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+      },
+      keyframes: {
+        'organic-spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '40%': { transform: 'rotate(180deg)' },
+          '100%': { transform: 'rotate(360deg)' }
+        }
+      },
+      animation: {
+        'organic-spin': 'organic-spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
       }
     },
   },
