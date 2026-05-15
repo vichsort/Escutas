@@ -24,6 +24,8 @@ defineEmits(['click'])
             </div>
 
             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+
+            <slot name="overlay" />
         </div>
 
         <div class="flex flex-col" :class="isRound ? 'items-center text-center' : 'items-start text-left'">
