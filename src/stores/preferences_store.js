@@ -1,20 +1,32 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { useDark, useToggle, useStorage } from '@vueuse/core'
 
 export const usePreferencesStore = defineStore('preferences', () => {
-  const savedViewMode = localStorage.getItem('viewMode') ?? 'grid'
+  // Tema
+  const isDark = useDark({
+    storageKey: 'theme',
+    valueDark: 'dark',
+    valueLight: 'light',
+  })
+  const toggleTheme = useToggle(isDark)
 
-  const viewMode = ref(['grid', 'list'].includes(savedViewMode) ? savedViewMode : 'grid')
-
-  function setViewMode(mode) {
-    if (!['grid', 'list'].includes(mode)) return
-    viewMode.value = mode
-    localStorage.setItem('viewMode', mode)
-  }
+  // View Mode
+  const viewMode = useStorage('viewMode', 'grid')
 
   function toggleViewMode() {
-    setViewMode(viewMode.value === 'grid' ? 'list' : 'grid')
+    viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
   }
 
-  return { viewMode, setViewMode, toggleViewMode }
+  // Sidebar State
+  const isSidebarOpen = useStorage('sidebarOpen', true)
+  const toggleSidebar = useToggle(isSidebarOpen)
+
+  return { 
+    isDark, 
+    toggleTheme,
+    viewMode, 
+    toggleViewMode,
+    isSidebarOpen,
+    toggleSidebar
+  }
 })
