@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { watch, computed, nextTick } from 'vue'
 import { X, Loader2, Maximize2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { LEGACY_OPTIONS } from '@/constants/review_constants'
@@ -27,18 +27,15 @@ const {
 const { 
     tracks, reviewText, isLegacyMode, isSubmitting, error: submitError, currentAverage, 
     initializeDraft, toggleIgnoreTrack, submitReview 
-} = useReviewDraft(computed(() => props.album?.id))
+} = useReviewDraft(() => props.album?.id)
 
 const router = useRouter()
 
-const handleExpand = () => {
+const handleExpand = async () => {
     handleClose()
+    await nextTick()
     if (props.album?.id) {
-        // Formato Objeto (À prova de refatorações de URL futuras)
-        router.push({ 
-            name: 'create-review', 
-            params: { id: props.album.id } 
-        })
+        router.push({ name: 'create-review', params: { id: props.album.id } })
     }
 }
 

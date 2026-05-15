@@ -8,8 +8,6 @@ export const useDraftsStore = defineStore('drafts', () => {
     const drafts = useLocalStorage('review-drafts', {})
 
     // getters
-    // Retorna todos os rascunhos em formato de array, ordenados do mais recente pro mais antigo.
-    // Isso vai ser o motor da nossa futura página "DraftsList.vue"
     const allDrafts = computed(() => {
         return Object.values(drafts.value).sort((a, b) => {
             return new Date(b.updatedAt) - new Date(a.updatedAt)
@@ -30,7 +28,6 @@ export const useDraftsStore = defineStore('drafts', () => {
     const initDraft = (albumData, tracksData) => {
         const albumId = albumData.id
 
-        // Só cria o rascunho se a "gaveta" deste álbum ainda estiver vazia
         if (!drafts.value[albumId]) {
             drafts.value[albumId] = {
                 album: {
@@ -43,6 +40,7 @@ export const useDraftsStore = defineStore('drafts', () => {
                     id: t.id,
                     name: t.name,
                     track_number: t.track_number,
+                    duration_ms: t.duration_ms || 0,
                     userScore: 5.0,
                     isIgnored: t.suggested_ignore || false
                 })),
@@ -55,11 +53,10 @@ export const useDraftsStore = defineStore('drafts', () => {
 
     const deleteDraft = (albumId) => {
         if (drafts.value[albumId]) {
-            delete drafts.value[albumId] // O VueUse já limpa do LocalStorage instantaneamente
+            delete drafts.value[albumId]
         }
     }
 
-    // Usaremos isso toda vez que o usuário digitar uma tecla, para a gaveta subir pro topo da lista
     const touchDraft = (albumId) => {
         if (drafts.value[albumId]) {
             drafts.value[albumId].updatedAt = new Date().toISOString()

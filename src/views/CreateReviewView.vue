@@ -1,11 +1,10 @@
 <script setup>
-import { onMounted, computed } from 'vue'
+import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { LEGACY_OPTIONS } from '@/constants/review_constants'
-import AlbumReviewHeader from '@/components/albums/AlbumReviewHeader.vue'
+import ReviewHeader from '@/components/reviews/ReviewHeader.vue'
 import AlbumDetailsSidebar from '@/components/albums/AlbumDetailsSidebar.vue'
-import ReviewActionFooter from '@/components/albums/ReviewActionFooter.vue'
-import ReviewModeToggle from '@/components/reviews/ReviewModeToggle.vue'
+import ReviewActionFooter from '@/components/reviews/ReviewActionFooter.vue'
 import TrackRatingRow from '@/components/reviews/TrackRatingRow.vue'
 import TrackListSkeleton from '@/components/reviews/TrackListSkeleton.vue'
 import { useAlbumDetails } from '@/composables/useAlbumDetails'
@@ -28,7 +27,6 @@ const {
 } = useReviewDraft(route.params.id)
 
 onMounted(async () => {
-    // Se o rascunho na store não existe ou é de OUTRO álbum, buscamos os dados novos
     const needsFetch = !tracks.value.length || fullAlbum.value?.id !== albumId
 
     if (needsFetch) {
@@ -38,15 +36,10 @@ onMounted(async () => {
         }
     }
 
-    // Se após tentar carregar, ainda houver erro crítico, voltamos para a home
     if (fetchError.value) {
         setTimeout(() => router.push('/'), 3000)
     }
 })
-
-const handleCancel = () => {
-    router.back()
-}
 
 const handleSubmit = async () => {
     const success = await submitReview()
@@ -69,35 +62,48 @@ const handleSubmit = async () => {
 
             <div class="flex-1 w-full space-y-10">
 
-                <AlbumReviewHeader :album="fullAlbum || tracks[0]" :tracks="tracks" />
+                <ReviewHeader
+                    :album="fullAlbum || tracks[0]"
+                    :tracks="tracks"
+                    :is-legacy-mode="isLegacyMode"
+                    @update:is-legacy-mode="isLegacyMode = $event"
+                />
 
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <ReviewModeToggle v-model="isLegacyMode" class="mx-0" />
-
-                    <div
-                        class="hidden md:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400 px-2">
-                        <span class="w-8 text-center">#</span>
-                        <span class="flex-1">Título</span>
-                        <span class="w-32 md:w-40 text-right">Avaliação</span>
-                    </div>
+                <div class="hidden md:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400 px-2">
+                    <span class="w-8 text-center">#</span>
+                    <span class="flex-1">Título</span>
+                    <span class="w-32 md:w-40 text-right">Avaliação</span>
                 </div>
 
                 <div class="space-y-1">
                     <TrackListSkeleton v-if="isLoadingTracks" :count="10" />
 
                     <template v-else>
-                        <TrackRatingRow v-for="track in tracks" :key="track.id" :track="track"
-                            :is-legacy-mode="isLegacyMode" :legacy-options="LEGACY_OPTIONS"
+                        <TrackRatingRow
+                            v-for="track in tracks"
+                            :key="track.id"
+                            :track="track"
+                            :is-legacy-mode="isLegacyMode"
+                            :legacy-options="LEGACY_OPTIONS"
                             @update:score="(payload) => track.userScore = payload.score"
-                            @toggle-ignore="toggleIgnoreTrack" />
+                            @toggle-ignore="toggleIgnoreTrack"
+                        />
                     </template>
                 </div>
 
-                <ReviewActionFooter v-model="reviewText" :current-average="currentAverage" :is-submitting="isSubmitting"
-                    :is-ready="!isLoadingTracks" @cancel="handleCancel" @submit="handleSubmit" />
+                <ReviewActionFooter
+                    v-model="reviewText"
+                    :current-average="currentAverage"
+                    :is-submitting="isSubmitting"
+                    :is-ready="!isLoadingTracks"
+                    @cancel="router.back()"
+                    @submit="handleSubmit"
+                />
 
-                <div v-if="submitError"
-                    class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center border border-red-100 dark:border-red-800/50">
+                <div
+                    v-if="submitError"
+                    class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center border border-red-100 dark:border-red-800/50"
+                >
                     {{ submitError }}
                 </div>
             </div>
@@ -113,7 +119,6 @@ const handleSubmit = async () => {
 .v-leave-active {
     transition: opacity 0.3s ease;
 }
-
 .v-enter-from,
 .v-leave-to {
     opacity: 0;
