@@ -44,6 +44,16 @@ export function useReviewDraft(albumIdParam) {
         }
     })
 
+    const isPrivate = computed({
+        get: () => activeDraft.value?.isPrivate || false,
+        set: (val) => {
+            if (activeDraft.value) {
+                activeDraft.value.isPrivate = val
+                draftsStore.touchDraft(currentId.value)
+            }
+        }
+    })
+
     const currentAverage = computed(() => draftsStore.getDraftAverage(currentId.value))
 
     const initializeDraft = (albumData, rawTracks) => {
@@ -79,7 +89,8 @@ export function useReviewDraft(albumIdParam) {
                     userScore: Number(t.userScore),
                     is_ignored: t.isIgnored
                 })),
-                review_text: draft.reviewText
+                review_text: draft.reviewText,
+                is_private: draft.isPrivate
             }
 
             await reviewStore.createReview(payload)
@@ -100,6 +111,7 @@ export function useReviewDraft(albumIdParam) {
         isLegacyMode,
         isSubmitting,
         error,
+        isPrivate,
         currentAverage,
         initializeDraft,
         toggleIgnoreTrack,

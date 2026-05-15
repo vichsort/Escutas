@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChevronLeft, Edit3, Trash2, Download } from 'lucide-vue-next'
+import { ChevronLeft, Edit3, Trash2, Download, Lock, Unlock } from 'lucide-vue-next'
 import { formatAlbumDuration, getReleaseYear } from '@/utils/formatters'
 import BaseToggle from '@/components/ui/BaseToggle.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -13,9 +13,10 @@ const props = defineProps({
     showToolbar: { type: Boolean, default: false },
     isOwner: { type: Boolean, default: false },
     isExporting: { type: Boolean, default: false },
+    isPrivate: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['update:isLegacyMode', 'edit', 'delete', 'export'])
+const emit = defineEmits(['update:isLegacyMode', 'edit', 'delete', 'export', 'toggle-privacy'])
 
 const router = useRouter()
 
@@ -47,6 +48,12 @@ const modeOptions = [
                 <BaseButton variant="secondary" @click="$emit('edit')" class="text-sm px-4 py-2">
                     <Edit3 :size="16" />
                     Editar
+                </BaseButton>
+
+                <BaseButton variant="secondary" @click="$emit('toggle-privacy')" class="text-sm px-4 py-2">
+                    <Lock v-if="!isPrivate" :size="16" />
+                    <Unlock v-else :size="16" />
+                    {{ isPrivate ? 'Pública' : 'Privada' }}
                 </BaseButton>
 
                 <BaseButton variant="danger" @click="$emit('delete')" class="text-sm px-4 py-2">

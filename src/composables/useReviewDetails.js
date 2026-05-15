@@ -71,6 +71,15 @@ export function useReviewDetails(exportCardRef) {
         }
     }
 
+    const handleTogglePrivacy = async () => {
+    try {
+        await reviewStore.updateReview(review.value.id, { is_private: !review.value.is_private })
+        review.value.is_private = !review.value.is_private
+    } catch {
+        // TODO: toast de erro
+    }
+}
+
     const handleExport = async () => {
         const el = exportCardRef.value?.$el
         if (!el) return
@@ -113,6 +122,7 @@ export function useReviewDetails(exportCardRef) {
         handleEdit,
         handleDelete,
         handleSaveText,
+        handleTogglePrivacy,
         handleExport,
         handleBlogPost,
     }

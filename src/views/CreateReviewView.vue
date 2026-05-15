@@ -1,12 +1,14 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Lock } from 'lucide-vue-next'
 import { LEGACY_OPTIONS } from '@/constants/review_constants'
 import ReviewHeader from '@/components/reviews/ReviewHeader.vue'
 import AlbumDetailsSidebar from '@/components/albums/AlbumDetailsSidebar.vue'
 import ReviewActionFooter from '@/components/reviews/ReviewActionFooter.vue'
 import TrackRatingRow from '@/components/reviews/TrackRatingRow.vue'
 import TrackListSkeleton from '@/components/reviews/TrackListSkeleton.vue'
+import BaseToggle from '@/components/ui/BaseToggle.vue'
 import { useAlbumDetails } from '@/composables/useAlbumDetails'
 import { useReviewDraft } from '@/composables/useReviewDraft'
 
@@ -22,7 +24,7 @@ const {
 } = useAlbumDetails()
 
 const {
-    tracks, reviewText, isLegacyMode, isSubmitting, error: submitError, currentAverage,
+    tracks, reviewText, isLegacyMode, isPrivate, isSubmitting, error: submitError, currentAverage,
     initializeDraft, toggleIgnoreTrack, submitReview
 } = useReviewDraft(route.params.id)
 
@@ -62,14 +64,17 @@ const handleSubmit = async () => {
 
             <div class="flex-1 w-full space-y-10">
 
-                <ReviewHeader
-                    :album="fullAlbum || tracks[0]"
-                    :tracks="tracks"
-                    :is-legacy-mode="isLegacyMode"
-                    @update:is-legacy-mode="isLegacyMode = $event"
-                />
+                <ReviewHeader :album="fullAlbum || tracks[0]" :tracks="tracks" :is-legacy-mode="isLegacyMode"
+                    @update:is-legacy-mode="isLegacyMode = $event" />
 
-                <div class="hidden md:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400 px-2">
+                <div class="flex items-center gap-3">
+                    <Lock :size="16" class="text-gray-400" />
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Review privada</span>
+                    <BaseToggle variant="switch" :model-value="isPrivate" @update:model-value="isPrivate = $event" />
+                </div>
+
+                <div
+                    class="hidden md:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400 px-2">
                     <span class="w-8 text-center">#</span>
                     <span class="flex-1">Título</span>
                     <span class="w-32 md:w-40 text-right">Avaliação</span>
@@ -79,31 +84,18 @@ const handleSubmit = async () => {
                     <TrackListSkeleton v-if="isLoadingTracks" :count="10" />
 
                     <template v-else>
-                        <TrackRatingRow
-                            v-for="track in tracks"
-                            :key="track.id"
-                            :track="track"
-                            :is-legacy-mode="isLegacyMode"
-                            :legacy-options="LEGACY_OPTIONS"
+                        <TrackRatingRow v-for="track in tracks" :key="track.id" :track="track"
+                            :is-legacy-mode="isLegacyMode" :legacy-options="LEGACY_OPTIONS"
                             @update:score="(payload) => track.userScore = payload.score"
-                            @toggle-ignore="toggleIgnoreTrack"
-                        />
+                            @toggle-ignore="toggleIgnoreTrack" />
                     </template>
                 </div>
 
-                <ReviewActionFooter
-                    v-model="reviewText"
-                    :current-average="currentAverage"
-                    :is-submitting="isSubmitting"
-                    :is-ready="!isLoadingTracks"
-                    @cancel="router.back()"
-                    @submit="handleSubmit"
-                />
+                <ReviewActionFooter v-model="reviewText" :current-average="currentAverage" :is-submitting="isSubmitting"
+                    :is-ready="!isLoadingTracks" @cancel="router.back()" @submit="handleSubmit" />
 
-                <div
-                    v-if="submitError"
-                    class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center border border-red-100 dark:border-red-800/50"
-                >
+                <div v-if="submitError"
+                    class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm text-center border border-red-100 dark:border-red-800/50">
                     {{ submitError }}
                 </div>
             </div>
@@ -119,6 +111,7 @@ const handleSubmit = async () => {
 .v-leave-active {
     transition: opacity 0.3s ease;
 }
+
 .v-enter-from,
 .v-leave-to {
     opacity: 0;

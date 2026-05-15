@@ -21,7 +21,7 @@ const {
     isLegacyMode, isDeleting, isExporting, isSaving,
     isDeleteModalOpen, editText,
     fetchReviewData, handleEdit, handleDelete,
-    handleSaveText, handleExport, handleBlogPost,
+    handleSaveText, handleExport, handleBlogPost, handleTogglePrivacy
 } = useReviewDetails(exportCardRef)
 
 onMounted(() => fetchReviewData(route.params.id))
@@ -54,6 +54,8 @@ watch(() => route.params.id, fetchReviewData)
                 @edit="handleEdit"
                 @delete="isDeleteModalOpen = true"
                 @export="handleExport"
+                :is-private="review.is_private"
+                @toggle-privacy="handleTogglePrivacy"
             />
 
             <div class="hidden md:flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400 px-2">

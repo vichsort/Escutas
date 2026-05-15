@@ -46,6 +46,7 @@ export const useDraftsStore = defineStore('drafts', () => {
                 })),
                 reviewText: '',
                 isLegacyMode: false,
+                isPrivate: false,
                 updatedAt: new Date().toISOString()
             }
         }
