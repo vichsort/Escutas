@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 import { ChevronLeft, Edit3, Trash2, Download, Lock, Unlock } from 'lucide-vue-next'
 import { formatAlbumDuration, getReleaseYear } from '@/utils/formatters'
 import BaseToggle from '@/components/ui/BaseToggle.vue'
@@ -8,6 +8,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 
 const props = defineProps({
     album: { type: Object, required: true },
+    artistSpotifyId: { type: String, default: null },
     tracks: { type: Array, default: () => [] },
     isLegacyMode: { type: Boolean, required: true },
     showToolbar: { type: Boolean, default: false },
@@ -83,7 +84,14 @@ const modeOptions = [
             <img v-if="album?.cover_url" :src="album.cover_url" class="w-6 h-6 rounded-full object-cover shadow-sm mr-1"
                 alt="Artist" />
 
-            <span class="font-bold text-gray-900 dark:text-white hover:underline cursor-pointer transition-colors">
+            <RouterLink
+                v-if="album?.artistSpotifyId"
+                :to="{ name: 'artist', params: { id: album.artistSpotifyId } }"
+                class="font-bold text-gray-900 dark:text-white hover:underline transition-colors"
+            >
+                {{ album?.artist }}
+            </RouterLink>
+            <span v-else class="font-bold text-gray-900 dark:text-white">
                 {{ album?.artist }}
             </span>
 

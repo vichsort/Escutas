@@ -41,6 +41,7 @@ watch(() => route.params.id, fetchReviewData)
                 :album="{
                     name: review.album_name,
                     artist: review.artist_name,
+                    artist_spotify_id: review.spotify_artist_id,
                     cover_url: review.cover_url,
                     release_date: review.created_at,
                     total_tracks: normalizedTracks.length
