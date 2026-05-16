@@ -53,3 +53,15 @@ export function timeAgo(dateString) {
     const diffDays = Math.floor(diffHours / 24)
     return `${diffDays}d`
 }
+
+/**
+ * Formata uma data para exibição em português (ex: "12 de jan. de 2025")
+ */
+export function formatDate(dateString) {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    })
+}
