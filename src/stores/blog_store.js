@@ -10,6 +10,15 @@ export const useBlogStore = defineStore('blog', () => {
         total: 0,
         has_next: false
     })
+    
+    const myPostsPagination = ref({
+        items: [],
+        page: 1,
+        per_page: 10,
+        total: 0,
+        has_next: false
+    })
+
     const currentPost = ref(null)
 
     const isLoading = ref({
@@ -43,6 +52,33 @@ export const useBlogStore = defineStore('blog', () => {
         } catch (err) {
             console.error('Erro ao listar posts:', err)
             error.value = 'Falha ao carregar os artigos do blog.'
+        } finally {
+            isLoading.value.list = false
+        }
+    }
+
+    async function fetchMyPosts(page = 1, perPage = 10, status = null, reset = false) {
+        if (reset) myPostsPagination.value.items = []
+
+        isLoading.value.list = true
+        error.value = null
+        try {
+            const data = await blogService.listMyPosts(page, perPage, status)
+
+            if (reset) {
+                myPostsPagination.value.items = data.items || []
+            } else {
+                myPostsPagination.value.items = [...myPostsPagination.value.items, ...(data.items || [])]
+            }
+
+            myPostsPagination.value.page = page
+            myPostsPagination.value.per_page = perPage
+            myPostsPagination.value.total = data.total || myPostsPagination.value.items.length
+            myPostsPagination.value.has_next = page < (data.pages || 1)
+
+        } catch (err) {
+            console.error('Erro ao listar meus posts:', err)
+            error.value = 'Falha ao carregar seus posts.'
         } finally {
             isLoading.value.list = false
         }
@@ -114,10 +150,12 @@ export const useBlogStore = defineStore('blog', () => {
 
     return {
         postsPagination,
+        myPostsPagination,
         currentPost,
         isLoading,
         error,
         fetchPosts,
+        fetchMyPosts,
         fetchPostBySlug,
         createPost,
         updatePost,

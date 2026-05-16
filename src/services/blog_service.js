@@ -8,6 +8,13 @@ class BlogService {
         return response.data.data
     }
 
+    async listMyPosts(page = 1, perPage = 10, status = null) {
+        const params = { page, per_page: perPage }
+        if (status) params.status = status
+        const response = await api.get('/blog/my-posts', { params })
+        return response.data.data
+    }
+
     async getPostBySlug(slug) {
         const response = await api.get(`/blog/${slug}`)
         return response.data.data
