@@ -62,6 +62,8 @@ watch(() => props.modelValue, (val) => {
 })
 
 onBeforeUnmount(() => editor.value?.destroy())
+
+defineExpose({ editor })
 </script>
 
 <template>
@@ -119,6 +121,11 @@ onBeforeUnmount(() => editor.value?.destroy())
 }
 
 .mention-chip {
-    @apply bg-primary/10 text-primary rounded px-1 py-0.5 font-medium text-sm;
+    background-color: rgb(var(--color-primary) / 0.1);
+    color: rgb(var(--color-primary));
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.25rem;
+    font-weight: 500;
+    font-size: 0.875rem;
 }
 </style>
