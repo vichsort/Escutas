@@ -72,13 +72,13 @@ export function useReviewDetails(exportCardRef) {
     }
 
     const handleTogglePrivacy = async () => {
-    try {
-        await reviewStore.updateReview(review.value.id, { is_private: !review.value.is_private })
-        review.value.is_private = !review.value.is_private
-    } catch {
-        // TODO: toast de erro
+        try {
+            await reviewStore.updateReview(review.value.id, { is_private: !review.value.is_private })
+            review.value.is_private = !review.value.is_private
+        } catch {
+            // TODO: toast de erro
+        }
     }
-}
 
     const handleExport = async () => {
         const el = exportCardRef.value?.$el
@@ -104,7 +104,14 @@ export function useReviewDetails(exportCardRef) {
     }
 
     const handleBlogPost = () => {
-        console.log('[useReviewDetails] TODO: criar post no blog referenciando review', review.value.id)
+        router.push({
+            name: 'blog-write',
+            query: {
+                mentionType: 'REVIEW',
+                mentionId: review.value.id,
+                mentionName: review.value.album_name
+            }
+        })
     }
 
     return {
