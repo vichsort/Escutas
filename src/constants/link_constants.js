@@ -21,7 +21,7 @@ export const SIDEBAR_LINKS = [
     },
     { 
         name: 'Blog', 
-        to: '/blog', 
+        to: '/blog-home', 
         icon: BookOpen, 
         requiresAuth: false 
     }
