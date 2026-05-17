@@ -13,6 +13,10 @@ const ArtistView = () => import('@/views/ArtistView.vue')
 const BlogHomeView = () => import('@/views/blog/Index.vue')
 const BlogWriteView = () => import('@/views/blog/WriteView.vue')
 const BlogPostView = () => import('@/views/blog/PostView.vue')
+const MeIndex = () => import('@/views/me/Index.vue')
+const MeCalendar = () => import('@/views/me/Calendar.vue')
+const MePlatinums = () => import('@/views/me/Platinums.vue')
+const MeTierlist = () => import('@/views/me/TierlistView.vue')
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,6 +33,10 @@ const router = createRouter({
         { path: '/blog/write', name: 'blog-write', component: BlogWriteView, meta: { requiresAuth: true } },
         { path: '/blog/write/:id', name: 'blog-edit', component: BlogWriteView, meta: { requiresAuth: true } },
         { path: '/blog/:slug', name: 'blog-post', component: BlogPostView, meta: { requiresAuth: true } },
+        { path: '/me', name: 'me', component: MeIndex, meta: { requiresAuth: true } },
+        { path: '/me/calendar', name: 'me-calendar', component: MeCalendar, meta: { requiresAuth: true } },
+        { path: '/me/platinums', name: 'me-platinums', component: MePlatinums, meta: { requiresAuth: true } },
+        { path: '/me/tierlist', name: 'me-tierlist', component: MeTierlist, meta: { requiresAuth: true } },
     ]
 })
 
