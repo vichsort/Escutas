@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '@/services/api_service'
+import { useMeStore } from '@/stores/me_store'
 
 const REDIRECT_URL = import.meta.env.VITE_REDIRECT_URL || 'http://127.0.0.1:5173/auth/callback';
 
@@ -19,6 +20,13 @@ export const useAuthStore = defineStore('auth', () => {
             console.error('Erro ao iniciar login:', error)
             alert('Erro ao conectar com servidor.')
         }
+    }
+
+    async function initAuth() {
+        if (!token.value) return
+        api.defaults.headers.common['Authorization'] = `Bearer ${token.value}`
+        const meStore = useMeStore()
+        await meStore.fetchProfile()
     }
 
     async function handleCallback(code) {
@@ -58,6 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
         token,
         isAuthenticated,
         loginWithSpotify,
+        initAuth,
         handleCallback,
         logout
     }

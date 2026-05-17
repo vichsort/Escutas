@@ -2,11 +2,16 @@
 import { computed, shallowRef, watch } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
 import ToastContainer from '@/components/layout/ToastContainer.vue'
+import GlobalLoader from '@/components/ui/GlobalLoader.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ReviewLayout from '@/layouts/ReviewLayout.vue'
+import { useAuthStore } from '@/stores/auth_store'
 import { usePreferencesStore } from '@/stores/preferences_store'
 import { Sun, Moon } from 'lucide-vue-next'
-import GlobalLoader from '@/components/ui/GlobalLoader.vue'
+
+const authStore = useAuthStore()
+
+onMounted(() => authStore.initAuth())
 
 const route = useRoute()
 const preferencesStore = usePreferencesStore()
