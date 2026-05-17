@@ -3,8 +3,11 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth_store'
 import { useReviewStore } from '@/stores/reviews_store'
 import html2canvas from 'html2canvas'
+import { useToast } from '@/composables/useToast'
+
 
 export function useReviewDetails(exportCardRef) {
+    const { toastError, toastSuccess } = useToast()
     const router = useRouter()
     const authStore = useAuthStore()
     const reviewStore = useReviewStore()
@@ -52,8 +55,8 @@ export function useReviewDetails(exportCardRef) {
             isDeleting.value = true
             await reviewStore.deleteReview(review.value.id)
             router.push('/library')
-        } catch {
-            // TODO: toast de erro
+        } catch (e) {
+            toastError(e.response?.data?.message || 'Erro ao deletar review.')
         } finally {
             isDeleting.value = false
             isDeleteModalOpen.value = false
@@ -64,8 +67,8 @@ export function useReviewDetails(exportCardRef) {
         try {
             isSaving.value = true
             await reviewStore.updateReview(review.value.id, { review_text: editText.value })
-        } catch {
-            // TODO: toast de erro
+        } catch (e) {
+            toastError(e.response?.data?.message || 'Erro ao salvar review.')
         } finally {
             isSaving.value = false
         }
@@ -75,8 +78,8 @@ export function useReviewDetails(exportCardRef) {
         try {
             await reviewStore.updateReview(review.value.id, { is_private: !review.value.is_private })
             review.value.is_private = !review.value.is_private
-        } catch {
-            // TODO: toast de erro
+        } catch (e) {
+            toastError(e.response?.data?.message || 'Erro ao salvar.')
         }
     }
 

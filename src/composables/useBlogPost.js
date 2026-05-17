@@ -3,8 +3,10 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth_store'
 import { useBlogStore } from '@/stores/blog_store'
 import { MENTION_ROUTES } from '@/constants/link_constants'
+import { useToast } from '@/composables/useToast'
 
 export function useBlogPost() {
+    const { toastError, toastSuccess } = useToast()
     const router = useRouter()
     const authStore = useAuthStore()
     const blogStore = useBlogStore()
@@ -30,9 +32,10 @@ export function useBlogPost() {
         if (!post.value) return
         try {
             await blogStore.deletePost(post.value.id)
+            toastSuccess('Post deletado.')
             router.push('/blog')
-        } catch {
-            // TODO: toast de erro
+        } catch (e) {
+            toastError(e.response?.data?.message || 'Erro ao deletar post.')
         }
     }
 
@@ -41,8 +44,8 @@ export function useBlogPost() {
         const newStatus = post.value.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED'
         try {
             await blogStore.updatePost(post.value.id, { status: newStatus })
-        } catch {
-            // TODO: toast de erro
+        } catch (e) {
+            toastError(e.response?.data?.message || 'Erro ao salvar.')
         }
     }
 
