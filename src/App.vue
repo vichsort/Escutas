@@ -1,6 +1,7 @@
 <script setup>
 import { computed, shallowRef, watch } from 'vue'
 import { useRoute, RouterView } from 'vue-router'
+import ToastContainer from '@/components/layout/ToastContainer.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import ReviewLayout from '@/layouts/ReviewLayout.vue'
 import { usePreferencesStore } from '@/stores/preferences_store'
@@ -26,6 +27,7 @@ watch(
 </script>
 
 <template>
+  <ToastContainer />
   <GlobalLoader />
 
   <component :is="currentLayout">
