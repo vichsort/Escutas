@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth_store'
 import { useMeStore } from '@/stores/me_store'
 import AlbumCard from '@/components/albums/AlbumCard.vue'
 import NowPlayingCard from '@/components/media/NowPlayingCard.vue'
-import CreateReviewModal from '@/components/reviews/CreateReviewModal.vue'
+import CreateReviewModal from '@/components/review/CreateReviewModal.vue'
 
 const authStore = useAuthStore()
 const meStore = useMeStore()

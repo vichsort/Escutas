@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useArtistStore } from '@/stores/artist_store'
 import ArtistHeader from '@/components/artists/ArtistHeader.vue'
 import DiscographyGrid from '@/components/artists/DiscographyGrid.vue'
-import CreateReviewModal from '@/components/reviews/CreateReviewModal.vue'
+import CreateReviewModal from '@/components/review/CreateReviewModal.vue'
 
 const route = useRoute()
 const artistStore = useArtistStore()

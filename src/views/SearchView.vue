@@ -8,7 +8,7 @@ import AlbumCard from '@/components/albums/AlbumCard.vue'
 import ArtistCard from '@/components/artists/ArtistCard.vue'
 import SkeletonGrid from '@/components/ui/SkeletonGrid.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
-import CreateReviewModal from '@/components/reviews/CreateReviewModal.vue'
+import CreateReviewModal from '@/components/review/CreateReviewModal.vue'
 
 const { 
     query, 

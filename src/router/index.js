@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth_store'
-import { useLoadingStore } from '@/stores/loading_store' // <-- Import da store de loading
+import { useLoadingStore } from '@/stores/loading_store'
 
 const HomeView = () => import('@/views/HomeView.vue')
 const SearchView = () => import('@/views/SearchView.vue')
 const Callback = () => import('@/views/auth/Callback.vue')
 const LibraryView = () => import('@/views/LibraryView.vue')
 const DraftsView = () => import('@/views/DraftsView.vue')
-const ReviewDetailsView = () => import('@/views/reviews/ReviewDetailsView.vue')
+const ReviewDetailsView = () => import('@/views/review/DetailsView.vue')
 const CreateReviewView = () => import('@/views/CreateReviewView.vue')
 const ArtistView = () => import('@/views/ArtistView.vue')
 const BlogHomeView = () => import('@/views/blog/Index.vue')

@@ -4,7 +4,7 @@ import { useDraftsStore } from '@/stores/drafts_store'
 import { usePreferencesStore } from '@/stores/preferences_store'
 import { ChevronLeft, FileText } from 'lucide-vue-next'
 import ViewModeToggle from '@/components/ui/ViewModeToggle.vue'
-import DraftListItem from '@/components/reviews/DraftListItem.vue'
+import DraftListItem from '@/components/review/DraftListItem.vue'
 
 const router = useRouter()
 const draftsStore = useDraftsStore()
